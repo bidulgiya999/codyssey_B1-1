@@ -145,6 +145,9 @@ window.addEventListener("scroll", () => {
   }
 });
 
+// 새로고침할 때 URL에 섹션 주소(#projects 등)가 있어도 버튼 상태를 바로 맞춥니다.
+renderScrollState();
+
 scrollTopButton.addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
@@ -461,4 +464,3 @@ renderTheme();
 renderMenu();
 renderScrollState();
 loadProjects();
-
