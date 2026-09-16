@@ -15,6 +15,7 @@
 - CSS3 변수, Flexbox, Grid, 미디어 쿼리
 - Vanilla JavaScript DOM API
 - GitHub REST API
+- FormSubmit AJAX
 - Local Storage
 - Intersection Observer
 
@@ -75,7 +76,7 @@ codyssey_B1-1/
 2. 햄버거 버튼 클릭 → `state.menuOpen` 변경 → 메뉴 클래스와 ARIA 속성 변경
 3. GitHub API 호출 → `loading/success/error` 상태 변경 → Projects UI 변경
 4. 언어 필터 클릭 → `activeLanguage` 변경 → 필터링된 프로젝트 카드 렌더링
-5. 폼 입력 → 값과 오류 상태 변경 → 필드 근처 오류 메시지 변경
+5. 폼 입력 → 값과 오류 상태 변경 → 검증 통과 시 FormSubmit으로 전송
 
 ### 다크 모드
 
@@ -96,9 +97,32 @@ codyssey_B1-1/
 - 이메일 정규식 검사
 - 메시지 최소 10자 검사
 - `input` 이벤트로 입력 중 실시간 오류 갱신
-- `submit` 이벤트에서 `preventDefault()`를 호출하고 성공 상태 표시
+- 전송 중 버튼 비활성화로 중복 제출 방지
+- 10초 요청 타임아웃과 성공·실패 메시지 제공
+- 허니팟(`_honey`) 필드로 기본적인 자동 스팸 방지
+- FormSubmit AJAX 엔드포인트를 통해 `jae94bro@gmail.com`으로 전달
 
-현재 폼은 프론트엔드 유효성 검사 학습용이며 실제 메일을 전송하지 않습니다. 실제 전송은 Formspree 또는 EmailJS 연동이 필요한 선택 보너스입니다.
+브라우저에서는 Gmail SMTP에 직접 접근할 수 없으므로 정적 사이트용 폼 백엔드인 [FormSubmit](https://formsubmit.co/)을 사용합니다. Gmail 비밀번호나 비밀 API 키는 저장소에 포함하지 않습니다.
+
+#### 최초 1회 활성화
+
+1. 배포된 홈페이지에서 정상적인 이름, 이메일, 메시지를 입력합니다.
+2. **메시지 보내기**를 누릅니다.
+3. `jae94bro@gmail.com` 받은편지함에서 FormSubmit 인증 메일을 확인합니다.
+4. 인증 메일의 활성화 링크를 직접 누릅니다.
+5. 이후 방문자가 제출한 문의가 같은 Gmail 주소로 전달됩니다.
+
+인증 메일이 보이지 않으면 스팸함을 확인합니다. FormSubmit 공식 정책상 첫 제출에서는 수신 주소 확인이 필요하므로, 활성화하기 전에는 문의 전달이 완료되지 않을 수 있습니다.
+
+#### 전송되는 데이터와 처리 흐름
+
+```text
+방문자 입력 → 브라우저 유효성 검사 → FormSubmit → jae94bro@gmail.com
+```
+
+전송 항목은 이름, 회신용 이메일, 메시지입니다. 이 데이터는 이메일 전달을 위해 외부 서비스인 FormSubmit을 거치며, 해당 사실을 폼 아래에도 표시했습니다. 서비스 장애 또는 네트워크 오류가 발생하면 입력 폼에 실패 메시지를 출력합니다.
+
+FormSubmit 공식 문서에는 제출 기록이 30일간 보관될 수 있다고 안내되어 있습니다. 따라서 비밀번호, 주민등록번호, 금융정보와 같은 민감한 내용은 문의 폼에 입력하지 않아야 합니다.
 
 ## GitHub API
 
@@ -129,8 +153,8 @@ GitHub API의 비인증 요청은 IP 기준 시간당 60회로 제한될 수 있
 - `map()`: 저장소 데이터 정규화와 카드 HTML 생성
 - `filter()`: 언어 필터와 빈 언어 제거
 - `forEach()`: 메뉴 링크, 폼 필드, Observer 연결
-- `async/await`: GitHub API 요청
-- `try/catch/finally`: API와 localStorage 예외 처리
+- `async/await`: GitHub API와 문의 폼 전송 요청
+- `try/catch/finally`: API, 폼 전송, localStorage 예외 처리
 
 ## 스크린샷
 
@@ -155,4 +179,3 @@ GitHub API의 비인증 요청은 IP 기준 시간당 60회로 제한될 수 있
 5. 배포 완료 후 Pages URL에서 반응형, API, 다크 모드, 폼을 다시 확인합니다.
 
 모든 CSS·JavaScript·이미지 경로는 GitHub Pages의 프로젝트 하위 경로에서도 동작하도록 상대 경로로 작성했습니다.
-

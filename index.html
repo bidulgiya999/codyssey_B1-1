@@ -230,7 +230,7 @@
         </div>
       </section>
 
-      <!-- Contact: 실제 전송 대신 클라이언트 유효성 검사와 성공 상태를 보여줍니다. -->
+      <!-- Contact: 입력값을 검증한 뒤 FormSubmit을 통해 지정된 이메일로 전달합니다. -->
       <section class="section" id="contact" aria-labelledby="contact-title">
         <div class="container contact-grid">
           <div class="contact-copy reveal">
@@ -245,7 +245,24 @@
             </a>
           </div>
 
-          <form class="contact-form reveal" id="contact-form" novalidate>
+          <form
+            class="contact-form reveal"
+            id="contact-form"
+            action="https://formsubmit.co/jae94bro@gmail.com"
+            method="POST"
+            novalidate
+          >
+            <!-- JavaScript를 사용할 수 없는 환경에서도 적용되는 전송 설정입니다. -->
+            <input type="hidden" name="_subject" value="포트폴리오에서 새로운 문의가 도착했습니다." />
+            <input type="hidden" name="_template" value="table" />
+            <input type="hidden" name="_captcha" value="false" />
+
+            <!-- 화면에서는 보이지 않지만 자동 입력 봇을 걸러내는 허니팟 필드입니다. -->
+            <div class="honeypot" aria-hidden="true">
+              <label for="website">웹사이트</label>
+              <input id="website" name="_honey" type="text" tabindex="-1" autocomplete="off" />
+            </div>
+
             <div class="form-field">
               <label for="name">이름 <span aria-hidden="true">*</span></label>
               <input
@@ -254,6 +271,7 @@
                 type="text"
                 autocomplete="name"
                 aria-describedby="name-error"
+                data-validate
                 required
               />
               <span class="field-error" id="name-error" aria-live="polite"></span>
@@ -267,6 +285,7 @@
                 type="email"
                 autocomplete="email"
                 aria-describedby="email-error"
+                data-validate
                 required
               />
               <span class="field-error" id="email-error" aria-live="polite"></span>
@@ -279,15 +298,21 @@
                 name="message"
                 rows="5"
                 aria-describedby="message-error"
+                data-validate
                 required
               ></textarea>
               <span class="field-error" id="message-error" aria-live="polite"></span>
             </div>
 
             <button class="button button-primary submit-button" type="submit">
-              메시지 확인
+              메시지 보내기
             </button>
-            <p class="form-status" id="form-status" role="status"></p>
+            <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+            <p class="form-notice">
+              입력 내용은 이메일 전달을 위해
+              <a href="https://formsubmit.co/" target="_blank" rel="noopener noreferrer">FormSubmit</a>을
+              거쳐 jae94bro@gmail.com으로 전송됩니다.
+            </p>
           </form>
         </div>
       </section>

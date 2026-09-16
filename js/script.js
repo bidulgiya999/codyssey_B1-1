@@ -7,6 +7,7 @@
    ================================================================ */
 const GITHUB_USERNAME = "bidulgiya999";
 const GITHUB_API_URL = `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100`;
+const FORM_ENDPOINT = "https://formsubmit.co/ajax/jae94bro@gmail.com";
 const SCROLL_TOP_THRESHOLD = 300;
 const HEADER_SCROLL_THRESHOLD = 60;
 const OBSERVER_THRESHOLD = 0.2;
@@ -40,6 +41,7 @@ const state = {
     values: { name: "", email: "", message: "" },
     errors: {},
     touched: new Set(),
+    status: "idle",
   },
 };
 
@@ -60,7 +62,8 @@ const projectsGrid = document.querySelector("#projects-grid");
 const projectFilters = document.querySelector("#project-filters");
 const contactForm = document.querySelector("#contact-form");
 const formStatus = document.querySelector("#form-status");
-const formFields = document.querySelectorAll("#contact-form input, #contact-form textarea");
+const formFields = document.querySelectorAll("#contact-form [data-validate]");
+const submitButton = document.querySelector(".submit-button");
 const currentYear = document.querySelector("#current-year");
 
 /* ================================================================
@@ -432,6 +435,13 @@ const renderFieldValidation = (fieldName) => {
   errorElement.textContent = error;
 };
 
+// 전송 중에는 중복 제출을 막고 버튼 문구로 진행 상태를 안내합니다.
+const renderSubmitState = () => {
+  const isSubmitting = state.form.status === "submitting";
+  submitButton.disabled = isSubmitting;
+  submitButton.textContent = isSubmitting ? "전송 중..." : "메시지 보내기";
+};
+
 formFields.forEach((field) => {
   field.addEventListener("input", (event) => {
     const { name, value } = event.target;
@@ -440,14 +450,19 @@ formFields.forEach((field) => {
     validateField(name);
     renderFieldValidation(name);
     formStatus.textContent = "";
+    formStatus.dataset.status = "";
   });
 });
 
-contactForm.addEventListener("submit", (event) => {
+contactForm.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (state.form.status === "submitting") return;
+
   const fieldNames = Object.keys(state.form.values);
 
   fieldNames.forEach((fieldName) => {
+    // 브라우저 자동 완성으로 input 이벤트가 생략된 경우에도 현재 값을 다시 읽습니다.
+    state.form.values[fieldName] = contactForm.elements[fieldName].value;
     state.form.touched.add(fieldName);
     validateField(fieldName);
     renderFieldValidation(fieldName);
@@ -456,17 +471,56 @@ contactForm.addEventListener("submit", (event) => {
   const firstInvalidField = fieldNames.find((fieldName) => state.form.errors[fieldName]);
   if (firstInvalidField) {
     formStatus.textContent = "입력 내용을 다시 확인해주세요.";
+    formStatus.dataset.status = "error";
     document.querySelector(`#${firstInvalidField}`).focus();
     return;
   }
 
-  formStatus.textContent = "입력 내용을 확인했습니다. 이메일 링크로 연락을 이어가주세요.";
-  contactForm.reset();
-  state.form.values = { name: "", email: "", message: "" };
-  state.form.errors = {};
-  state.form.touched.clear();
+  state.form.status = "submitting";
+  formStatus.textContent = "";
+  formStatus.dataset.status = "";
+  renderSubmitState();
 
-  fieldNames.forEach(renderFieldValidation);
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), 10000);
+  const payload = Object.fromEntries(new FormData(contactForm).entries());
+
+  try {
+    const response = await fetch(FORM_ENDPOINT, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+
+    const result = await response.json().catch(() => ({}));
+    const serviceRejected = result.success === false || result.success === "false";
+
+    if (!response.ok || serviceRejected) {
+      throw new Error(result.message || `메일 전송 서비스 응답 오류가 발생했습니다. (${response.status})`);
+    }
+
+    formStatus.textContent = "메시지를 전송했습니다. 첫 사용이라면 수신함의 FormSubmit 인증 메일을 승인해주세요.";
+    formStatus.dataset.status = "success";
+    contactForm.reset();
+    state.form.values = { name: "", email: "", message: "" };
+    state.form.errors = {};
+    state.form.touched.clear();
+    fieldNames.forEach(renderFieldValidation);
+  } catch (error) {
+    const message = error.name === "AbortError"
+      ? "전송 시간이 초과되었습니다. 네트워크 연결을 확인한 뒤 다시 시도해주세요."
+      : "메시지를 전송하지 못했습니다. 잠시 후 다시 시도하거나 이메일 주소로 직접 연락해주세요.";
+    formStatus.textContent = message;
+    formStatus.dataset.status = "error";
+  } finally {
+    window.clearTimeout(timeoutId);
+    state.form.status = "idle";
+    renderSubmitState();
+  }
 });
 
 /* ================================================================
@@ -476,4 +530,5 @@ currentYear.textContent = new Date().getFullYear();
 renderTheme();
 renderMenu();
 renderScrollState();
+renderSubmitState();
 loadProjects();
