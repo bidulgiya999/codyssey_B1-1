@@ -21,6 +21,10 @@
 
 외부 UI 라이브러리와 JavaScript 프레임워크는 사용하지 않았습니다.
 
+## 발표 자료
+
+발표 순서, 핵심 코드 설명, 시연 절차와 예상 질문 답변은 [PRESENTATION.md](PRESENTATION.md)에 정리했습니다.
+
 ## 실행 방법
 
 ### VS Code Live Server
