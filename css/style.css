@@ -1,0 +1,1050 @@
+/* ================================================================
+   1. 디자인 토큰
+   색상·간격·그림자를 변수로 관리해 테마 변경과 유지보수를 단순화합니다.
+   ================================================================ */
+:root {
+  color-scheme: light;
+  --color-bg: #f5f8f9;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eaf0f1;
+  --color-text: #10202c;
+  --color-text-muted: #5e6f78;
+  --color-line: #cad6da;
+  --color-accent: #007f73;
+  --color-accent-strong: #00665d;
+  --color-highlight: #d88a00;
+  --color-dark: #0d1b2a;
+  --color-dark-muted: #13283b;
+  --color-on-dark: #eef7f7;
+  --color-error: #b42318;
+  --color-success: #087a55;
+  --font-sans: "Pretendard", "Noto Sans KR", "Segoe UI", sans-serif;
+  --font-mono: "Cascadia Code", "Consolas", monospace;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-5: 3rem;
+  --space-6: 5rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --shadow-card: 0 1.25rem 3rem rgba(13, 27, 42, 0.1);
+  --header-height: 4.5rem;
+  --transition: 180ms ease;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #09131e;
+  --color-surface: #102131;
+  --color-surface-muted: #152a3c;
+  --color-text: #eff8f7;
+  --color-text-muted: #a9bdc4;
+  --color-line: #2c4655;
+  --color-accent: #47dac5;
+  --color-accent-strong: #72ebd9;
+  --color-highlight: #ffc65c;
+  --color-dark: #050c13;
+  --color-dark-muted: #0d1c29;
+  --color-on-dark: #eff8f7;
+  --color-error: #ff8d85;
+  --color-success: #6ee7b7;
+  --shadow-card: 0 1.25rem 3rem rgba(0, 0, 0, 0.35);
+}
+
+/* ================================================================
+   2. 기본 스타일과 접근성
+   ================================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-height) + 1rem);
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.7;
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+body.menu-open {
+  overflow: hidden;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 0.2rem solid var(--color-highlight);
+  outline-offset: 0.2rem;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 1000;
+  padding: 0.75rem 1rem;
+  transform: translateY(-150%);
+  border-radius: var(--radius-sm);
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-weight: 700;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.container {
+  width: min(100% - 2rem, 72rem);
+  margin-inline: auto;
+}
+
+.section {
+  position: relative;
+  padding-block: var(--space-6);
+  scroll-margin-top: var(--header-height);
+}
+
+.section-muted {
+  background: var(--color-surface-muted);
+}
+
+.section-dark {
+  background: var(--color-dark);
+  color: var(--color-on-dark);
+}
+
+.section-kicker,
+.eyebrow {
+  margin: 0 0 var(--space-1);
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.section-dark .section-kicker {
+  color: #69e6d4;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+}
+
+h1 {
+  margin-bottom: var(--space-3);
+  font-size: clamp(2.75rem, 12vw, 5.75rem);
+  letter-spacing: -0.055em;
+}
+
+h1 span {
+  color: var(--color-accent);
+}
+
+h2 {
+  margin-bottom: var(--space-2);
+  font-size: clamp(2rem, 7vw, 3.5rem);
+  letter-spacing: -0.04em;
+}
+
+h3 {
+  font-size: 1.35rem;
+}
+
+.section-heading {
+  max-width: 44rem;
+  margin-bottom: var(--space-4);
+}
+
+.section-heading > p:last-child,
+.projects-heading p,
+.about-copy p,
+.contact-copy p {
+  color: var(--color-text-muted);
+}
+
+.button {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.25rem;
+  border: 0.1rem solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 800;
+  transition:
+    transform var(--transition),
+    background-color var(--transition),
+    border-color var(--transition),
+    color var(--transition);
+}
+
+.button:hover {
+  transform: translateY(-0.15rem);
+}
+
+.button-primary {
+  background: var(--color-accent);
+  color: #ffffff;
+}
+
+.button-primary:hover {
+  background: var(--color-accent-strong);
+}
+
+.button-secondary {
+  border-color: var(--color-line);
+  background: transparent;
+  color: var(--color-text);
+}
+
+.button-secondary:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* ================================================================
+   3. 헤더와 내비게이션 — 모바일 우선
+   ================================================================ */
+.site-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 100;
+  min-height: var(--header-height);
+  border-bottom: 0.0625rem solid transparent;
+  transition:
+    background-color var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.site-header.scrolled {
+  border-color: var(--color-line);
+  background: color-mix(in srgb, var(--color-bg) 90%, transparent);
+  box-shadow: 0 0.5rem 1.5rem rgba(13, 27, 42, 0.08);
+  backdrop-filter: blur(0.75rem);
+}
+
+.nav {
+  min-height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 900;
+}
+
+.logo-mark {
+  display: grid;
+  width: 2.35rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 0.125rem solid var(--color-accent);
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.theme-toggle,
+.menu-toggle {
+  min-height: 2.75rem;
+  border: 0.0625rem solid var(--color-line);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding-inline: 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.theme-label {
+  display: none;
+}
+
+.menu-toggle {
+  display: grid;
+  width: 2.75rem;
+  place-content: center;
+  gap: 0.28rem;
+  padding: 0;
+}
+
+.menu-toggle span {
+  width: 1.15rem;
+  height: 0.125rem;
+  background: currentColor;
+  transition:
+    transform var(--transition),
+    opacity var(--transition);
+}
+
+.menu-toggle.active span:nth-child(1) {
+  transform: translateY(0.405rem) rotate(45deg);
+}
+
+.menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-toggle.active span:nth-child(3) {
+  transform: translateY(-0.405rem) rotate(-45deg);
+}
+
+.nav-menu {
+  position: fixed;
+  inset: var(--header-height) 0 auto;
+  display: grid;
+  max-height: 0;
+  margin: 0;
+  overflow: hidden;
+  padding: 0 1rem;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  list-style: none;
+  opacity: 0;
+  transition:
+    max-height 250ms ease,
+    padding 250ms ease,
+    opacity var(--transition);
+}
+
+.nav-menu.active {
+  max-height: 24rem;
+  padding-block: 1rem;
+  opacity: 1;
+}
+
+.nav-menu a {
+  display: block;
+  padding: 0.85rem 0.75rem;
+  border-bottom: 0.0625rem solid var(--color-line);
+  font-weight: 750;
+}
+
+.nav-menu a:hover {
+  color: var(--color-accent);
+}
+
+/* ================================================================
+   4. Hero와 컴퓨터 비전 모티프
+   ================================================================ */
+.hero {
+  min-height: 100svh;
+  display: grid;
+  align-items: center;
+  padding-top: calc(var(--header-height) + var(--space-5));
+  background-image:
+    linear-gradient(var(--color-line) 0.0625rem, transparent 0.0625rem),
+    linear-gradient(90deg, var(--color-line) 0.0625rem, transparent 0.0625rem);
+  background-size: 2.5rem 2.5rem;
+  background-position: center;
+}
+
+.hero::before {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, var(--color-bg) 20%, transparent 75%);
+  content: "";
+}
+
+.hero-grid {
+  position: relative;
+  display: grid;
+  gap: var(--space-5);
+  align-items: center;
+}
+
+.hero-description {
+  max-width: 37rem;
+  margin-bottom: var(--space-4);
+  color: var(--color-text-muted);
+  font-size: clamp(1.05rem, 3vw, 1.25rem);
+}
+
+.hero-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.vision-panel {
+  width: min(100%, 26rem);
+  justify-self: center;
+}
+
+.vision-frame {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 0.125rem solid var(--color-accent);
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  box-shadow:
+    1rem 1rem 0 color-mix(in srgb, var(--color-accent) 20%, transparent),
+    var(--shadow-card);
+}
+
+.vision-frame::before,
+.vision-frame::after {
+  position: absolute;
+  width: 25%;
+  height: 25%;
+  content: "";
+}
+
+.vision-frame::before {
+  top: -0.5rem;
+  left: -0.5rem;
+  border-top: 0.4rem solid var(--color-highlight);
+  border-left: 0.4rem solid var(--color-highlight);
+}
+
+.vision-frame::after {
+  right: -0.5rem;
+  bottom: -0.5rem;
+  border-right: 0.4rem solid var(--color-highlight);
+  border-bottom: 0.4rem solid var(--color-highlight);
+}
+
+.focus-label {
+  position: absolute;
+  top: -2rem;
+  left: -0.125rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--color-accent);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.vision-content {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  text-align: center;
+}
+
+.vision-content strong {
+  font-size: clamp(3.5rem, 18vw, 6rem);
+  line-height: 1;
+  letter-spacing: -0.1em;
+}
+
+.vision-content > span:last-child {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.vision-index {
+  color: var(--color-highlight);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+/* ================================================================
+   5. About와 Skills
+   ================================================================ */
+.about-grid,
+.contact-grid {
+  display: grid;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.profile-frame {
+  position: relative;
+  max-width: 28rem;
+  padding: 0.75rem;
+  border: 0.0625rem solid var(--color-line);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.profile-frame img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(0.9) contrast(1.04);
+}
+
+.profile-caption {
+  display: block;
+  padding-top: 0.65rem;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.about-facts {
+  display: grid;
+  gap: 0.75rem;
+  margin: var(--space-4) 0 0;
+}
+
+.about-facts div {
+  padding: 1rem;
+  border-left: 0.2rem solid var(--color-accent);
+  background: var(--color-surface);
+}
+
+.about-facts dt {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.about-facts dd {
+  margin: 0.2rem 0 0;
+  font-weight: 800;
+}
+
+.skills-grid {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.skill-card {
+  position: relative;
+  min-height: 19rem;
+  padding: var(--space-4);
+  overflow: hidden;
+  border: 0.0625rem solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: 0 0.75rem 1.5rem rgba(13, 27, 42, 0.05);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    border-color var(--transition);
+}
+
+.skill-card:hover {
+  transform: translateY(-0.4rem);
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-card);
+}
+
+.card-number {
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-weight: 800;
+}
+
+.skill-card h3 {
+  margin-block: var(--space-3);
+  font-size: 1.5rem;
+}
+
+.skill-card p {
+  margin: var(--space-3) 0 0;
+  color: var(--color-text-muted);
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag-list li {
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  background: var(--color-surface-muted);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+/* ================================================================
+   6. GitHub Projects — Grid와 상태별 UI
+   ================================================================ */
+.projects-heading {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.projects-heading p {
+  color: #a9bdc4;
+}
+
+.text-link {
+  width: fit-content;
+  color: #69e6d4;
+  font-weight: 800;
+}
+
+.text-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+}
+
+.project-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: var(--space-3);
+}
+
+.project-filters[hidden] {
+  display: none;
+}
+
+.filter-button {
+  padding: 0.5rem 0.9rem;
+  border: 0.0625rem solid #385064;
+  border-radius: 999px;
+  background: transparent;
+  color: #c8d8dd;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 750;
+  transition:
+    background-color var(--transition),
+    color var(--transition),
+    border-color var(--transition);
+}
+
+.filter-button:hover,
+.filter-button.active {
+  border-color: #69e6d4;
+  background: #69e6d4;
+  color: #08131d;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+.project-card {
+  display: flex;
+  min-height: 18rem;
+  flex-direction: column;
+  padding: var(--space-3);
+  border: 0.0625rem solid #2b4254;
+  border-radius: var(--radius-md);
+  background: var(--color-dark-muted);
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15);
+  transition:
+    transform var(--transition),
+    border-color var(--transition);
+}
+
+.project-card:hover {
+  transform: translateY(-0.35rem);
+  border-color: #69e6d4;
+}
+
+.project-card-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.project-card h3 {
+  overflow-wrap: anywhere;
+}
+
+.repo-link {
+  color: #69e6d4;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+}
+
+.repo-link:hover {
+  text-decoration: underline;
+}
+
+.project-description {
+  flex: 1;
+  color: #b8c9cf;
+}
+
+.project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: var(--space-3) 0 0;
+  padding: var(--space-2) 0 0;
+  border-top: 0.0625rem solid #2b4254;
+  color: #a9bdc4;
+  font-size: 0.82rem;
+}
+
+.language-dot {
+  display: inline-block;
+  width: 0.65rem;
+  aspect-ratio: 1;
+  margin-right: 0.35rem;
+  border-radius: 50%;
+  background: #69e6d4;
+}
+
+.project-state,
+.noscript-message {
+  grid-column: 1 / -1;
+  display: grid;
+  min-height: 16rem;
+  place-items: center;
+  align-content: center;
+  gap: 0.75rem;
+  padding: var(--space-4);
+  border: 0.0625rem dashed #385064;
+  border-radius: var(--radius-md);
+  color: #c8d8dd;
+  text-align: center;
+}
+
+.project-state p {
+  margin: 0;
+}
+
+.spinner {
+  width: 2.4rem;
+  aspect-ratio: 1;
+  border: 0.2rem solid #385064;
+  border-top-color: #69e6d4;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================================================================
+   7. Contact Form
+   ================================================================ */
+.contact-copy {
+  align-self: start;
+}
+
+.contact-email {
+  display: inline-block;
+  margin-top: var(--space-2);
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-weight: 800;
+}
+
+.contact-email:hover {
+  text-decoration: underline;
+}
+
+.contact-form {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 0.0625rem solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.form-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.form-field label {
+  font-weight: 800;
+}
+
+.form-field input,
+.form-field textarea {
+  width: 100%;
+  border: 0.1rem solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  padding: 0.8rem 0.9rem;
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--color-accent) 18%, transparent);
+  outline: none;
+}
+
+.form-field input[aria-invalid="true"],
+.form-field textarea[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+.field-error {
+  min-height: 1.35rem;
+  color: var(--color-error);
+  font-size: 0.875rem;
+}
+
+.submit-button {
+  width: 100%;
+  border: 0;
+}
+
+.form-status {
+  min-height: 1.5rem;
+  margin: 0;
+  color: var(--color-success);
+  font-weight: 750;
+}
+
+/* ================================================================
+   8. Footer, 스크롤 탑, 스크롤 애니메이션
+   ================================================================ */
+.site-footer {
+  padding-block: var(--space-3);
+  border-top: 0.0625rem solid var(--color-line);
+  background: var(--color-surface);
+}
+
+.footer-content {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.footer-content p {
+  margin: 0;
+}
+
+.footer-links {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.footer-links a:hover {
+  color: var(--color-accent);
+}
+
+.scroll-top {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 80;
+  display: grid;
+  width: 3rem;
+  aspect-ratio: 1;
+  place-items: center;
+  transform: translateY(1rem);
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: #ffffff;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--transition),
+    transform var(--transition),
+    background-color var(--transition);
+}
+
+.scroll-top.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.scroll-top:hover {
+  background: var(--color-accent-strong);
+}
+
+.reveal {
+  transform: translateY(1.75rem);
+  opacity: 0;
+  transition:
+    transform 600ms ease,
+    opacity 600ms ease;
+}
+
+.reveal.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ================================================================
+   9. 태블릿: 768px 이상
+   ================================================================ */
+@media (min-width: 48rem) {
+  .theme-label {
+    display: inline;
+  }
+
+  .menu-toggle {
+    display: none;
+  }
+
+  .nav-actions {
+    order: 3;
+  }
+
+  .nav-menu {
+    position: static;
+    display: flex;
+    max-height: none;
+    margin-left: auto;
+    padding: 0;
+    overflow: visible;
+    background: transparent;
+    box-shadow: none;
+    opacity: 1;
+  }
+
+  .nav-menu a {
+    padding: 0.75rem;
+    border: 0;
+  }
+
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+  }
+
+  .about-grid,
+  .contact-grid {
+    grid-template-columns: minmax(16rem, 0.8fr) minmax(0, 1.2fr);
+    gap: var(--space-6);
+  }
+
+  .skills-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .projects-heading {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+  }
+
+  .projects-grid {
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+}
+
+/* ================================================================
+   10. 데스크톱: 1024px 이상
+   ================================================================ */
+@media (min-width: 64rem) {
+  .container {
+    width: min(100% - 4rem, 72rem);
+  }
+
+  .section {
+    padding-block: 7rem;
+  }
+
+  .hero-grid {
+    gap: 7rem;
+  }
+
+  .contact-form {
+    padding: var(--space-4);
+  }
+
+  .scroll-top {
+    right: 2rem;
+    bottom: 2rem;
+  }
+}
+
+/* 사용자가 동작 감소를 요청하면 애니메이션과 부드러운 이동을 제거합니다. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .reveal {
+    transform: none;
+    opacity: 1;
+  }
+}
+
