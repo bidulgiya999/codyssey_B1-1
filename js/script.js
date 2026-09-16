@@ -62,6 +62,7 @@ const projectsGrid = document.querySelector("#projects-grid");
 const projectFilters = document.querySelector("#project-filters");
 const contactForm = document.querySelector("#contact-form");
 const formStatus = document.querySelector("#form-status");
+const formUrlField = document.querySelector("#form-url");
 const formFields = document.querySelectorAll("#contact-form [data-validate]");
 const submitButton = document.querySelector(".submit-button");
 const currentYear = document.querySelector("#current-year");
@@ -442,6 +443,9 @@ const renderSubmitState = () => {
   submitButton.textContent = isSubmitting ? "전송 중..." : "메시지 보내기";
 };
 
+// FormSubmit이 로컬 파일로 오인하지 않도록 현재 HTTP 페이지 주소를 명시합니다.
+const getCurrentFormUrl = () => new URL(window.location.pathname, window.location.origin).href;
+
 formFields.forEach((field) => {
   field.addEventListener("input", (event) => {
     const { name, value } = event.target;
@@ -484,6 +488,7 @@ contactForm.addEventListener("submit", async (event) => {
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), 10000);
   const payload = Object.fromEntries(new FormData(contactForm).entries());
+  payload._url = getCurrentFormUrl();
 
   try {
     const response = await fetch(FORM_ENDPOINT, {
@@ -498,9 +503,18 @@ contactForm.addEventListener("submit", async (event) => {
 
     const result = await response.json().catch(() => ({}));
     const serviceRejected = result.success === false || result.success === "false";
+    const serviceMessage = typeof result.message === "string" ? result.message : "";
+    const needsActivation = serviceRejected && /activat/i.test(serviceMessage);
+
+    // 첫 요청은 전송 실패가 아니라 수신 이메일 소유권 확인 단계입니다.
+    if (needsActivation) {
+      formStatus.textContent = "FormSubmit 활성화 메일을 보냈습니다. Gmail에서 Activate Form을 누른 뒤 다시 전송해주세요.";
+      formStatus.dataset.status = "pending";
+      return;
+    }
 
     if (!response.ok || serviceRejected) {
-      throw new Error(result.message || `메일 전송 서비스 응답 오류가 발생했습니다. (${response.status})`);
+      throw new Error(serviceMessage || `메일 전송 서비스 응답 오류가 발생했습니다. (${response.status})`);
     }
 
     formStatus.textContent = "메시지를 전송했습니다. 첫 사용이라면 수신함의 FormSubmit 인증 메일을 승인해주세요.";
@@ -511,9 +525,13 @@ contactForm.addEventListener("submit", async (event) => {
     state.form.touched.clear();
     fieldNames.forEach(renderFieldValidation);
   } catch (error) {
+    const isLocalFileError = /web server|HTML files/i.test(error.message);
     const message = error.name === "AbortError"
       ? "전송 시간이 초과되었습니다. 네트워크 연결을 확인한 뒤 다시 시도해주세요."
-      : "메시지를 전송하지 못했습니다. 잠시 후 다시 시도하거나 이메일 주소로 직접 연락해주세요.";
+      : isLocalFileError
+        ? "HTML 파일을 직접 열지 말고 VS Code Live Server 주소에서 실행해주세요."
+        : "메시지를 전송하지 못했습니다. 잠시 후 다시 시도하거나 이메일 주소로 직접 연락해주세요.";
+    console.error("문의 폼 전송 오류:", error);
     formStatus.textContent = message;
     formStatus.dataset.status = "error";
   } finally {
@@ -531,4 +549,5 @@ renderTheme();
 renderMenu();
 renderScrollState();
 renderSubmitState();
+formUrlField.value = getCurrentFormUrl();
 loadProjects();

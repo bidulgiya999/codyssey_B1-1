@@ -886,6 +886,10 @@ h3 {
   color: var(--color-error);
 }
 
+.form-status[data-status="pending"] {
+  color: var(--color-highlight);
+}
+
 .form-notice {
   margin: 0;
   color: var(--color-text-muted);
