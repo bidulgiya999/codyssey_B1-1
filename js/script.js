@@ -11,6 +11,7 @@ const SCROLL_TOP_THRESHOLD = 300;
 const HEADER_SCROLL_THRESHOLD = 60;
 const OBSERVER_THRESHOLD = 0.2;
 
+// 브라우저가 저장소 접근을 막더라도 사이트가 중단되지 않도록 안전하게 값을 읽습니다.
 const getStoredTheme = () => {
   try {
     return localStorage.getItem("portfolio-theme");
@@ -74,6 +75,7 @@ const saveTheme = (theme) => {
   }
 };
 
+// 상태 객체의 테마 값을 실제 화면과 스크린 리더용 설명에 함께 반영합니다.
 const renderTheme = () => {
   const isDark = state.theme === "dark";
   document.documentElement.dataset.theme = state.theme;
@@ -91,6 +93,7 @@ themeToggle.addEventListener("click", () => {
 /* ================================================================
    4. 모바일 메뉴와 부드러운 스크롤
    ================================================================ */
+// 메뉴의 열림 상태를 class와 ARIA 속성에 동시에 반영합니다.
 const renderMenu = () => {
   navMenu.classList.toggle("active", state.menuOpen);
   menuToggle.classList.toggle("active", state.menuOpen);
@@ -131,6 +134,7 @@ navLinks.forEach((link) => {
    ================================================================ */
 let scrollTicking = false;
 
+// 스크롤 위치에 따라 헤더 강조와 TOP 버튼 노출 여부만 갱신합니다.
 const renderScrollState = () => {
   const scrollPosition = window.scrollY;
   siteHeader.classList.toggle("scrolled", scrollPosition >= HEADER_SCROLL_THRESHOLD);
@@ -179,6 +183,7 @@ if (reduceMotion || !("IntersectionObserver" in window)) {
    7. GitHub API 상태 → Projects UI 렌더링
    외부 문자열은 innerHTML에 넣기 전에 escapeHtml로 이스케이프합니다.
    ================================================================ */
+// GitHub에서 받은 문자열이 HTML로 해석되지 않도록 특수문자를 치환합니다.
 const escapeHtml = (value) => String(value)
   .replaceAll("&", "&amp;")
   .replaceAll("<", "&lt;")
@@ -192,6 +197,7 @@ const formatDate = (dateString) => new Intl.DateTimeFormat("ko-KR", {
   day: "numeric",
 }).format(new Date(dateString));
 
+// 저장소의 대표 언어를 중복 없이 모아 동적 필터 버튼을 만듭니다.
 const renderProjectFilters = () => {
   const languages = [...new Set(
     state.projects.items
@@ -220,6 +226,7 @@ const renderProjectFilters = () => {
   }).join("");
 };
 
+// API 응답 한 건을 화면에 표시할 프로젝트 카드 HTML로 변환합니다.
 const createProjectCard = (project) => {
   const {
     name,
@@ -254,6 +261,7 @@ const createProjectCard = (project) => {
   `;
 };
 
+// loading/error/empty/success 상태마다 서로 다른 화면을 그립니다.
 const renderProjects = () => {
   const { status, items, error, activeLanguage } = state.projects;
   projectsGrid.setAttribute("aria-busy", String(status === "loading"));
@@ -311,6 +319,7 @@ const renderProjects = () => {
   projectsGrid.innerHTML = filteredProjects.map(createProjectCard).join("");
 };
 
+// 요청이 10초를 넘으면 중단하고, 필요한 값만 화면용 객체로 정리합니다.
 async function loadProjects() {
   state.projects.status = "loading";
   state.projects.error = "";
@@ -374,6 +383,7 @@ async function loadProjects() {
   }
 }
 
+// 부모 요소에서 클릭을 한 번만 감지하는 이벤트 위임 방식입니다.
 projectFilters.addEventListener("click", (event) => {
   const button = event.target.closest("[data-language]");
   if (!button) return;
@@ -385,6 +395,7 @@ projectFilters.addEventListener("click", (event) => {
 /* ================================================================
    8. 폼 입력 상태 → 필드별 오류와 성공 메시지 렌더링
    ================================================================ */
+// 필드별 검증 규칙을 한 객체에 모아 입력 및 제출 시 동일하게 재사용합니다.
 const validators = {
   name: (value) => {
     if (!value.trim()) return "이름을 입력해주세요.";
@@ -403,12 +414,14 @@ const validators = {
   },
 };
 
+// 검증 결과를 상태에 저장해 화면 렌더링과 데이터 처리를 분리합니다.
 const validateField = (fieldName) => {
   const error = validators[fieldName](state.form.values[fieldName]);
   state.form.errors[fieldName] = error;
   return error;
 };
 
+// 사용자가 한 번이라도 입력한 필드에만 오류를 표시합니다.
 const renderFieldValidation = (fieldName) => {
   const field = document.querySelector(`#${fieldName}`);
   const errorElement = document.querySelector(`#${fieldName}-error`);
