@@ -25,6 +25,15 @@
 
 발표 순서, 핵심 코드 설명, 시연 절차와 예상 질문 답변은 [PRESENTATION.md](PRESENTATION.md)에 정리했습니다.
 
+## 학습용 코드 해설
+
+- [index.html 줄별 해설](docs/ANNOTATED_INDEX.md)
+- [style.css 줄별 해설](docs/ANNOTATED_STYLE.md)
+- [script.js 줄별 해설](docs/ANNOTATED_SCRIPT.md)
+- [웹 개발 용어사전](docs/GLOSSARY.md)
+
+줄별 해설은 실행 코드를 복잡하게 만들지 않도록 별도 문서로 분리했습니다. 빈 줄을 포함한 원본 전체 줄 번호와 설명이 1:1로 대응하며, `python .\tools\generate_annotated_docs.py`로 다시 생성할 수 있습니다.
+
 ## 실행 방법
 
 ### VS Code Live Server
