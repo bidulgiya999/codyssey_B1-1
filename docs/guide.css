@@ -1,0 +1,71 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f5f8f9;
+  --surface: #ffffff;
+  --text: #10202c;
+  --muted: #5e6f78;
+  --line: #cad6da;
+  --accent: #007f73;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", "Noto Sans KR", sans-serif;
+  line-height: 1.65;
+}
+a { color: var(--accent); }
+.guide-header, main { width: min(100% - 2rem, 90rem); margin-inline: auto; }
+.guide-header { padding-block: 2rem 1rem; }
+.guide-header h1 { margin-block: 0.75rem 0.25rem; }
+.guide-header p { color: var(--muted); }
+.guide-menu, .term-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+  padding-bottom: 3rem;
+}
+.guide-menu a, .term-grid article {
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  box-shadow: 0 0.75rem 2rem rgba(13, 27, 42, 0.08);
+}
+.guide-menu a {
+  display: block;
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.guide-menu a:hover, .guide-menu a:focus-visible { border-color: var(--accent); color: var(--accent); }
+.guide-menu small, small { display: block; margin-top: 0.5rem; color: var(--muted); font-weight: 400; }
+.term-grid article h2 { margin-top: 0; font-size: 1.05rem; }
+.term-grid article p { margin-bottom: 0; }
+.table-wrap { overflow-x: auto; padding-bottom: 3rem; }
+table { width: 100%; border-collapse: collapse; background: var(--surface); }
+th, td { padding: 0.75rem; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+thead th { position: sticky; top: 0; z-index: 1; background: #0d1b2a; color: #ffffff; }
+tbody th { width: 4rem; color: var(--muted); }
+td code { display: block; min-width: 24rem; overflow-wrap: anywhere; white-space: pre-wrap; }
+td a {
+  display: block;
+  color: var(--text);
+  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  text-underline-offset: 0.2em;
+}
+td a:hover, td a:focus-visible { color: var(--accent); }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #09131e;
+    --surface: #102131;
+    --text: #eff8f7;
+    --muted: #a9bdc4;
+    --line: #2c4655;
+    --accent: #47dac5;
+  }
+}

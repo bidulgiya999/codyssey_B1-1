@@ -31,8 +31,14 @@
 - [style.css 줄별 해설](docs/ANNOTATED_STYLE.md)
 - [script.js 줄별 해설](docs/ANNOTATED_SCRIPT.md)
 - [웹 개발 용어사전](docs/GLOSSARY.md)
+- [CSS 변수·값·홈페이지 위치](docs/CSS_VARIABLES.md)
+- [클릭형 코드 학습 가이드](docs/code-guide.html)
 
 줄별 해설은 실행 코드를 복잡하게 만들지 않도록 별도 문서로 분리했습니다. 빈 줄을 포함한 원본 전체 줄 번호와 설명이 1:1로 대응하며, `python .\tools\generate_annotated_docs.py`로 다시 생성할 수 있습니다.
+
+Live Server에서 <http://127.0.0.1:5500/docs/code-guide.html>을 열면 각 설명과 용어를 클릭해 실제 홈페이지의 관련 섹션으로 이동할 수 있습니다. GitHub Pages 활성화 후에도 `/docs/code-guide.html` 경로에서 동일하게 동작합니다.
+
+GitHub Pages 활성화 후 공개 학습 가이드 주소는 <https://bidulgiya999.github.io/codyssey_B1-1/docs/code-guide.html>입니다.
 
 ## 실행 방법
 
