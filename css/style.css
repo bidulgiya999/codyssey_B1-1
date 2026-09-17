@@ -432,79 +432,72 @@ h3 {
   gap: 0.75rem;
 }
 
-.vision-panel {
-  width: min(100%, 26rem);
+.hero-visual {
+  width: min(100%, 31rem);
+  margin: 0;
   justify-self: center;
 }
 
-.vision-frame {
+.hero-image-frame {
   position: relative;
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
+  padding: 0.55rem;
   border: 0.125rem solid var(--color-accent);
-  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  background: var(--color-dark);
   box-shadow:
     1rem 1rem 0 color-mix(in srgb, var(--color-accent) 20%, transparent),
     var(--shadow-card);
 }
 
-.vision-frame::before,
-.vision-frame::after {
+.hero-image-frame::before,
+.hero-image-frame::after {
   position: absolute;
-  width: 25%;
-  height: 25%;
+  z-index: 1;
+  width: 22%;
+  height: 22%;
+  pointer-events: none;
   content: "";
 }
 
-.vision-frame::before {
+.hero-image-frame::before {
   top: -0.5rem;
   left: -0.5rem;
-  border-top: 0.4rem solid var(--color-highlight);
-  border-left: 0.4rem solid var(--color-highlight);
+  border-top: 0.35rem solid var(--color-highlight);
+  border-left: 0.35rem solid var(--color-highlight);
 }
 
-.vision-frame::after {
+.hero-image-frame::after {
   right: -0.5rem;
   bottom: -0.5rem;
-  border-right: 0.4rem solid var(--color-highlight);
-  border-bottom: 0.4rem solid var(--color-highlight);
+  border-right: 0.35rem solid var(--color-highlight);
+  border-bottom: 0.35rem solid var(--color-highlight);
 }
 
-.focus-label {
+.hero-image-frame img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 0.0625rem solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+.hero-image-label {
   position: absolute;
-  top: -2rem;
-  left: -0.125rem;
-  padding: 0.25rem 0.5rem;
-  background: var(--color-accent);
-  color: #ffffff;
+  right: 1rem;
+  bottom: 1rem;
+  padding: 0.35rem 0.55rem;
+  background: color-mix(in srgb, var(--color-dark) 82%, transparent);
+  color: var(--color-on-dark);
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-}
-
-.vision-content {
-  display: grid;
-  justify-items: center;
-  gap: 0.35rem;
-  font-family: var(--font-mono);
-  text-align: center;
-}
-
-.vision-content strong {
-  font-size: clamp(3.5rem, 18vw, 6rem);
-  line-height: 1;
-  letter-spacing: -0.1em;
-}
-
-.vision-content > span:last-child {
-  font-size: 0.75rem;
+  font-size: 0.68rem;
+  font-weight: 800;
   letter-spacing: 0.08em;
 }
 
-.vision-index {
-  color: var(--color-highlight);
-  font-size: 1rem;
-  font-weight: 800;
+.hero-visual figcaption {
+  padding-top: 0.85rem;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  text-align: center;
 }
 
 /* ================================================================
