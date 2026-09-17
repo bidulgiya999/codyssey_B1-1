@@ -12,6 +12,26 @@ const SCROLL_TOP_THRESHOLD = 300;
 const HEADER_SCROLL_THRESHOLD = 60;
 const OBSERVER_THRESHOLD = 0.2;
 
+// 학습 문서의 링크가 가리킬 수 있는 홈페이지 요소를 허용 목록으로 제한합니다.
+// 예: index.html?focus=hero-visual#hero → Hero 오른쪽 이미지 강조
+const GUIDE_TARGETS = {
+  header: { selector: "#site-header", label: "상단 헤더와 내비게이션" },
+  hero: { selector: "#hero", label: "첫 화면(Hero) 전체" },
+  "hero-copy": { selector: ".hero-copy", label: "첫 화면 왼쪽 소개 문구" },
+  "hero-visual": { selector: ".hero-visual", label: "첫 화면 오른쪽 MRI 히트맵 이미지" },
+  about: { selector: "#about", label: "About 전체 영역" },
+  profile: { selector: ".profile-frame", label: "About의 프로필 사진" },
+  skills: { selector: "#skills", label: "Skills 전체 영역" },
+  "skill-cards": { selector: ".skills-grid", label: "기술 스택 카드 모음" },
+  projects: { selector: "#projects", label: "GitHub Projects 전체 영역" },
+  "project-filters": { selector: "#project-filters", label: "프로젝트 언어 필터" },
+  "project-cards": { selector: "#projects-grid", label: "GitHub 프로젝트 카드 목록" },
+  contact: { selector: "#contact", label: "Contact 전체 영역" },
+  "contact-form": { selector: "#contact-form", label: "이름·이메일·메시지 입력 폼" },
+  footer: { selector: ".site-footer", label: "페이지 하단 Footer" },
+  "scroll-top": { selector: "#scroll-top", label: "맨 위로 이동 버튼" },
+};
+
 // 브라우저가 저장소 접근을 막더라도 사이트가 중단되지 않도록 안전하게 값을 읽습니다.
 const getStoredTheme = () => {
   try {
@@ -182,6 +202,33 @@ if (reduceMotion || !("IntersectionObserver" in window)) {
 
   revealElements.forEach((element) => revealObserver.observe(element));
 }
+
+// 학습 문서에서 넘어온 링크라면 정확한 대상까지 이동한 뒤 잠시 강조합니다.
+const highlightGuideTarget = () => {
+  const targetKey = new URLSearchParams(window.location.search).get("focus");
+  const targetInfo = GUIDE_TARGETS[targetKey];
+
+  if (!targetInfo) return;
+
+  const target = document.querySelector(targetInfo.selector);
+  if (!target) return;
+
+  const wasVisible = target.classList.contains("visible");
+  const needsPositioning = window.getComputedStyle(target).position === "static";
+
+  if (needsPositioning) target.classList.add("guide-highlight-positioned");
+  if (targetKey === "scroll-top") target.classList.add("visible");
+  target.classList.add("guide-highlight");
+  target.dataset.guideHighlight = `학습 가이드 위치 · ${targetInfo.label}`;
+  target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+
+  window.setTimeout(() => {
+    target.classList.remove("guide-highlight");
+    target.classList.remove("guide-highlight-positioned");
+    if (targetKey === "scroll-top" && !wasVisible) target.classList.remove("visible");
+    delete target.dataset.guideHighlight;
+  }, 5000);
+};
 
 /* ================================================================
    7. GitHub API 상태 → Projects UI 렌더링
@@ -551,3 +598,4 @@ renderScrollState();
 renderSubmitState();
 formUrlField.value = getCurrentFormUrl();
 loadProjects();
+highlightGuideTarget();

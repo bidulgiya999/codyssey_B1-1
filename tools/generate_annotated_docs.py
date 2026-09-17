@@ -40,6 +40,72 @@ CSS_VARIABLES = {
     "--transition": ("hover·테마 변화에 사용하는 공통 전환 시간과 속도", "hero"),
 }
 
+# 같은 섹션 안에서도 실제로 강조할 대표 요소를 변수별로 지정합니다.
+CSS_VARIABLE_TARGETS = {
+    "--color-bg": "hero",
+    "--color-surface": "contact-form",
+    "--color-surface-muted": "about",
+    "--color-text": "hero-copy",
+    "--color-text-muted": "hero-copy",
+    "--color-line": "contact-form",
+    "--color-accent": "hero-copy",
+    "--color-accent-strong": "hero-copy",
+    "--color-highlight": "hero-visual",
+    "--color-dark": "projects",
+    "--color-dark-muted": "project-cards",
+    "--color-on-dark": "project-cards",
+    "--color-error": "contact-form",
+    "--color-success": "contact-form",
+    "--font-sans": "hero-copy",
+    "--font-mono": "skill-cards",
+    "--space-1": "skill-cards",
+    "--space-2": "skill-cards",
+    "--space-3": "skill-cards",
+    "--space-4": "contact-form",
+    "--space-5": "about",
+    "--space-6": "about",
+    "--radius-sm": "hero-copy",
+    "--radius-md": "skill-cards",
+    "--radius-lg": "contact-form",
+    "--shadow-card": "skill-cards",
+    "--header-height": "header",
+    "--transition": "header",
+}
+
+TARGET_LABELS = {
+    "header": "상단 고정 헤더와 메뉴",
+    "hero": "첫 화면(Hero) 전체",
+    "hero-copy": "첫 화면 왼쪽 소개 문구와 버튼",
+    "hero-visual": "첫 화면 오른쪽 MRI 히트맵 이미지",
+    "about": "About 전체 영역",
+    "profile": "About 왼쪽 프로필 사진",
+    "skills": "Skills 전체 영역",
+    "skill-cards": "기술 스택 카드 모음",
+    "projects": "GitHub Projects 전체 영역",
+    "project-filters": "프로젝트 언어 필터 버튼",
+    "project-cards": "GitHub 프로젝트 카드 목록",
+    "contact": "Contact 전체 영역",
+    "contact-form": "이름·이메일·메시지 입력 폼",
+    "footer": "페이지 하단 Footer",
+    "scroll-top": "오른쪽 아래 맨 위로 이동 버튼",
+}
+
+SECTION_DEFAULT_TARGET = {
+    "hero": "hero",
+    "about": "about",
+    "skills": "skills",
+    "projects": "projects",
+    "contact": "contact",
+}
+
+TARGET_SECTIONS = {
+    "header": "hero", "hero": "hero", "hero-copy": "hero", "hero-visual": "hero",
+    "about": "about", "profile": "about",
+    "skills": "skills", "skill-cards": "skills",
+    "projects": "projects", "project-filters": "projects", "project-cards": "projects",
+    "contact": "contact", "contact-form": "contact", "footer": "contact", "scroll-top": "hero",
+}
+
 CSS_TERMS = {
     "align-items": "교차축의 정렬", "background": "배경", "border": "테두리",
     "border-radius": "모서리 둥글기", "bottom": "아래쪽 위치", "box-shadow": "그림자",
@@ -295,6 +361,55 @@ def detect_section(source: Path, line: str, current: str) -> str:
     return current
 
 
+def detect_target(source: Path, line: str, section: str, current: str) -> str:
+    """섹션보다 더 구체적으로, 화면에서 강조할 대표 요소를 판별합니다."""
+    text = line.lower()
+
+    if source.name == "style.css":
+        for variable, target in CSS_VARIABLE_TARGETS.items():
+            if variable in text:
+                return target
+
+    # JavaScript는 한 줄마다 처리 대상이 빠르게 바뀌므로 이전 줄의 세부 위치를
+    # 무조건 이어받지 않습니다. HTML/CSS는 같은 요소·선택자가 여러 줄이므로 유지합니다.
+    if source.name == "script.js":
+        current = SECTION_DEFAULT_TARGET[section]
+    elif source.name == "index.html" and current == "footer" and "scroll-top" not in text:
+        return "footer"
+    elif TARGET_SECTIONS.get(current) != section:
+        current = SECTION_DEFAULT_TARGET[section]
+
+    checks = [
+        ("scroll-top", ("scroll-top", "scrolltopbutton", "window.scrollto")),
+        ("footer", ("site-footer", "footer-content", "footer-links", "<footer", "</footer")),
+        ("contact-form", ("contact-form", "form-field", "field-error", "form-status", "submit-button",
+                          "validator", "honeypot", "formsubmit", "form_endpoint", "contactform", "formfields")),
+        ("project-filters", ("project-filters", "projectfilters", "activelanguage", "filter-button")),
+        ("project-cards", ("projects-grid", "projectsgrid", "project-card", "github_api", "loadprojects",
+                           "renderprojects", "repo", "spinner")),
+        ("skill-cards", ("skills-grid", "skill-card", "tag-list", "card-number")),
+        ("profile", ("profile-frame", "profile-image", "profile-caption")),
+        ("hero-visual", ("hero-visual", "hero-image", "mri", "heatmap", "vision-frame")),
+        ("hero-copy", ("hero-copy", "hero-description", "hero-cta", "hero-title", "eyebrow")),
+        ("header", ("site-header", "nav-menu", "nav-actions", "menu-toggle", "theme-toggle", "logo-mark")),
+    ]
+    for target, tokens in checks:
+        if any(token in text for token in tokens):
+            return target
+    return current
+
+
+def location_url(section: str, target: str, *, live: bool) -> str:
+    """홈페이지 이동과 정확한 요소 강조에 사용할 안전한 URL을 만듭니다."""
+    base = LIVE_SITE if live else "../index.html"
+    resolved_section = TARGET_SECTIONS.get(target, section)
+    return f"{base}?focus={target}#{resolved_section}"
+
+
+def location_label(target: str) -> str:
+    return TARGET_LABELS.get(target, "관련 홈페이지 영역")
+
+
 def make_doc(source: Path, title: str, note_func) -> str:
     lines = source.read_text(encoding="utf-8").splitlines()
     relative = source.relative_to(ROOT).as_posix()
@@ -309,6 +424,7 @@ def make_doc(source: Path, title: str, note_func) -> str:
     )
     inside_comment = False
     current_section = "hero"
+    current_target = "hero"
     for number, line in enumerate(lines, start=1):
         stripped = line.strip()
         starts_comment = comment_start in stripped
@@ -320,9 +436,15 @@ def make_doc(source: Path, title: str, note_func) -> str:
         else:
             note = note_func(line)
 
+        previous_section = current_section
         current_section = detect_section(source, line, current_section)
-        live_url = f"{LIVE_SITE}#{current_section}"
-        rows.append(f"| {number} | {code_cell(line)} | [{note}]({live_url}) |")
+        if previous_section != current_section:
+            current_target = SECTION_DEFAULT_TARGET[current_section]
+        current_target = detect_target(source, line, current_section, current_target)
+        live_url = location_url(current_section, current_target, live=True)
+        rows.append(
+            f"| {number} | {code_cell(line)} | [{note} — 위치: {location_label(current_target)}]({live_url}) |"
+        )
 
         if inside_comment and comment_end in stripped:
             inside_comment = False
@@ -336,6 +458,7 @@ def make_html_doc(source: Path, title: str, note_func) -> str:
     comment_start, comment_end = (("<!--", "-->") if source.suffix == ".html" else ("/*", "*/"))
     inside_comment = False
     current_section = "hero"
+    current_target = "hero"
     table_rows = []
     for number, line in enumerate(lines, start=1):
         stripped = line.strip()
@@ -345,12 +468,17 @@ def make_html_doc(source: Path, title: str, note_func) -> str:
             "브라우저 동작에는 영향을 주지 않는 여러 줄 설명 주석의 일부입니다."
             if inside_comment else note_func(line)
         )
+        previous_section = current_section
         current_section = detect_section(source, line, current_section)
+        if previous_section != current_section:
+            current_target = SECTION_DEFAULT_TARGET[current_section]
+        current_target = detect_target(source, line, current_section, current_target)
+        local_url = location_url(current_section, current_target, live=False)
         shown_code = escape(line) if line else "(빈 줄)"
         table_rows.append(
             f'<tr id="L{number}"><th>{number}</th><td><code>{shown_code}</code></td>'
-            f'<td><a href="../index.html#{current_section}" title="홈페이지의 {current_section} 섹션에서 보기">{escape(note)}</a>'
-            f'<small>홈페이지 위치: {current_section}</small></td></tr>'
+            f'<td><a href="{local_url}" title="{escape(location_label(current_target))}에서 보기">{escape(note)}</a>'
+            f'<small class="location-label">정확한 위치: {escape(location_label(current_target))}</small></td></tr>'
         )
         if inside_comment and comment_end in stripped:
             inside_comment = False
@@ -358,7 +486,7 @@ def make_html_doc(source: Path, title: str, note_func) -> str:
 <html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{escape(title)}</title><link rel="stylesheet" href="guide.css"></head>
 <body><header class="guide-header"><a href="code-guide.html">← 학습 문서 홈</a><h1>{escape(title)}</h1>
-<p>설명을 클릭하면 실제 홈페이지의 관련 섹션으로 이동합니다.</p></header>
+<p>설명을 클릭하면 실제 홈페이지의 정확한 요소로 이동하고, 5초 동안 강조 표시됩니다.</p></header>
 <main><div class="table-wrap"><table><thead><tr><th>줄</th><th>코드</th><th>설명·홈페이지 위치</th></tr></thead>
 <tbody>{''.join(table_rows)}</tbody></table></div></main></body></html>'''
 
@@ -380,21 +508,24 @@ def make_css_variables() -> tuple[str, str]:
     html_rows = []
     for name, value in light.items():
         meaning, section = CSS_VARIABLES.get(name, ("재사용하는 디자인 값", "hero"))
+        target = CSS_VARIABLE_TARGETS.get(name, SECTION_DEFAULT_TARGET[section])
         dark_value = dark.get(name, "동일")
         detail = value_note(value)
-        url = f"{LIVE_SITE}#{section}"
-        md.append(f"| [`{name}`]({url}) | `{value}` | `{dark_value}` | [{meaning}. {detail}]({url}) |")
+        url = location_url(section, target, live=True)
+        local_url = location_url(section, target, live=False)
+        label = location_label(target)
+        md.append(f"| [`{name}`]({url}) | `{value}` | `{dark_value}` | [{meaning}. {detail} 위치: {label}]({url}) |")
         html_rows.append(
-            f'<tr><th><a href="../index.html#{section}"><code>{name}</code></a></th>'
+            f'<tr><th><a href="{local_url}"><code>{name}</code></a></th>'
             f'<td><code>{escape(value)}</code></td><td><code>{escape(dark_value)}</code></td>'
-            f'<td><a href="../index.html#{section}">{escape(meaning)}. {escape(detail)}</a>'
-            f'<small>홈페이지 위치: {section}</small></td></tr>'
+            f'<td><a href="{local_url}">{escape(meaning)}. {escape(detail)}</a>'
+            f'<small class="location-label">정확한 위치: {escape(label)}</small></td></tr>'
         )
     md += ["", "라이트 값은 `:root`, 다크 값은 `[data-theme=\"dark\"]`에서 정의됩니다.", ""]
     html_doc = f'''<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CSS 변수·값·위치</title><link rel="stylesheet" href="guide.css"></head><body>
 <header class="guide-header"><a href="code-guide.html">← 학습 문서 홈</a><h1>CSS 변수·값·홈페이지 위치</h1>
-<p>변수 이름이나 설명을 클릭하면 실제 적용 예시가 있는 홈페이지 섹션으로 이동합니다.</p></header>
+<p>변수 이름이나 설명을 클릭하면 실제 적용 예시가 있는 정확한 요소로 이동하고, 5초 동안 강조 표시됩니다.</p></header>
 <main><div class="table-wrap"><table><thead><tr><th>변수</th><th>라이트</th><th>다크</th><th>의미·위치</th></tr></thead>
 <tbody>{''.join(html_rows)}</tbody></table></div></main></body></html>'''
     return "\n".join(md), html_doc
@@ -409,10 +540,12 @@ def make_glossary_html() -> str:
         if not term:
             return
         section = detect_section(Path("glossary"), term, "hero")
+        target = detect_target(Path("glossary"), term, section, SECTION_DEFAULT_TARGET[section])
+        local_url = location_url(section, target, live=False)
         content = " ".join(escape(part) for part in body if part and not part.startswith("```"))
         cards.append(
-            f'<article><h2><a href="../index.html#{section}">{escape(term)}</a></h2>'
-            f'<p>{content}</p><small>홈페이지 위치: {section}</small></article>'
+            f'<article><h2><a href="{local_url}">{escape(term)}</a></h2>'
+            f'<p>{content}</p><small class="location-label">정확한 위치: {escape(location_label(target))}</small></article>'
         )
 
     for line in lines:
@@ -425,7 +558,7 @@ def make_glossary_html() -> str:
     return f'''<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>웹 개발 용어사전</title><link rel="stylesheet" href="guide.css"></head><body>
 <header class="guide-header"><a href="code-guide.html">← 학습 문서 홈</a><h1>웹 개발 용어사전</h1>
-<p>용어 제목을 클릭하면 해당 개념을 확인하기 좋은 홈페이지 섹션으로 이동합니다.</p></header>
+<p>용어 제목을 클릭하면 해당 개념을 확인하기 좋은 정확한 요소로 이동하고, 5초 동안 강조 표시됩니다.</p></header>
 <main class="term-grid">{''.join(cards)}</main></body></html>'''
 
 

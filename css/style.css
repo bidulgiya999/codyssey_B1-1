@@ -162,6 +162,48 @@ a {
   color: #69e6d4;
 }
 
+/* 학습 문서에서 이동한 정확한 화면 요소를 5초 동안 눈에 띄게 표시합니다. */
+.guide-highlight {
+  outline: 0.3rem solid var(--color-highlight);
+  outline-offset: 0.45rem;
+  box-shadow: 0 0 0 0.75rem color-mix(in srgb, var(--color-highlight) 22%, transparent);
+  animation: guide-highlight-pulse 1s ease-in-out 3;
+}
+
+.guide-highlight-positioned {
+  position: relative;
+  z-index: 20;
+}
+
+.guide-highlight::after {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 21;
+  max-width: min(24rem, calc(100% - 1.5rem));
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-highlight);
+  color: #111820;
+  content: attr(data-guide-highlight);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.4;
+  box-shadow: var(--shadow-card);
+}
+
+@keyframes guide-highlight-pulse {
+  0%,
+  100% {
+    outline-offset: 0.45rem;
+  }
+
+  50% {
+    outline-offset: 0.8rem;
+  }
+}
+
 h1,
 h2,
 h3,
@@ -215,7 +257,6 @@ h3 {
   padding: 0.75rem 1.25rem;
   border: 0.1rem solid transparent;
   border-radius: 999px;
-  cursor: pointer;
   font-weight: 800;
   transition:
     transform var(--transition),
@@ -310,7 +351,6 @@ h3 {
   border-radius: 999px;
   background: var(--color-surface);
   color: var(--color-text);
-  cursor: pointer;
 }
 
 .theme-toggle {
@@ -658,7 +698,6 @@ h3 {
   border-radius: 999px;
   background: transparent;
   color: #c8d8dd;
-  cursor: pointer;
   font-size: 0.875rem;
   font-weight: 750;
   transition:
@@ -864,7 +903,6 @@ h3 {
 }
 
 .submit-button:disabled {
-  cursor: wait;
   opacity: 0.65;
 }
 
@@ -945,7 +983,6 @@ h3 {
   font-weight: 800;
   letter-spacing: 0.08em;
   box-shadow: var(--shadow-card);
-  cursor: pointer;
   opacity: 0;
   pointer-events: none;
   transition:
